@@ -18,6 +18,7 @@ public class Controller extends Thread {
     private boolean isPromptNeeded = true;
     private boolean isCancelled = false;
     private boolean isResultComputed = false;
+    private boolean hangExit = false;
     private long lastContinue;
 
     Controller() {
@@ -29,7 +30,7 @@ public class Controller extends Thread {
         processes = new HashMap<>();
         result = new HashMap<>();
         container = new FunctionsContainer();
-        server = new Server(container.numberOfFunctions);
+        server = new Server(FunctionsContainer.numberOfFunctions);
         server.start();
     }
 
@@ -69,7 +70,7 @@ public class Controller extends Thread {
         ResultContainer lastResult = new ResultContainer();
         lastContinue = System.currentTimeMillis();
 
-        while(!isCancelled && !isResultComputed) {
+        while(!isCancelled && !isResultComputed && !hangExit) {
             if(isPromptNeeded && System.currentTimeMillis() - lastContinue > 5000) {
                 userChoise = ask();
                 switch(userChoise) {
@@ -78,6 +79,7 @@ public class Controller extends Thread {
                         break;
                     case 2:
                         isPromptNeeded = false;
+                        lastContinue = System.currentTimeMillis();
                         break;
                     case 3:
                         shutProcesses();
@@ -90,27 +92,42 @@ public class Controller extends Thread {
                 }
             }
 
+//            if(System.currentTimeMillis() - lastContinue > 10000) {
+//                System.out.println("Function hangs. Shutting down processes.");
+//                shutProcesses();
+//                break;
+//            }
+
             while((lastResult = server.resultPoll()) != null) {
-                System.out.println(lastResult.getFormattedResult());
-                result.put(lastResult.getFunctionName(), lastResult.getFunctionResult());
-                if(result.size() == FunctionsContainer.numberOfFunctions || lastResult.getFunctionResult() == 0) {
-                    isResultComputed = true;
-                    if(lastResult.getFunctionResult() == 0) {
-                        System.out.println(lastResult.getFunctionName() + " is 0, shutting down other processes");
-                        shutProcesses();
-                        System.out.println("Final result is 0.");
-                        break;
+                if(!lastResult.isHanging()) {
+                    System.out.println(lastResult.getFormattedResult());
+                    result.put(lastResult.getFunctionName(), lastResult.getFunctionResult());
+                    if (result.size() == FunctionsContainer.numberOfFunctions || lastResult.getFunctionResult() == 0) {
+                        isResultComputed = true;
+                        if (lastResult.getFunctionResult() == 0) {
+                            System.out.println(lastResult.getFunctionName() + " is 0, shutting down other processes");
+                            shutProcesses();
+                            System.out.println("Final result is 0.");
+                            break;
+                        } else {
+                            System.out.println("All functions returned result. Final result is " + operation());
+                            break;
+                        }
                     }
-                    else {
-                        System.out.println("All functions returned result. Final result is " + operation());
-                        break;
-                    }
+                }
+                else {
+                    hangExit = true;
+                    System.out.println("Function " + lastResult.getFunctionName() + " hangs. Shutting down processes.");
+                    shutProcesses();
                 }
             }
         }
         serverInterrupt();
         if(isCancelled) {
             System.out.println("Cancelled by user.");
+        }
+        if(hangExit) {
+            System.out.println("Cancelled due function hanging.");
         }
     }
 

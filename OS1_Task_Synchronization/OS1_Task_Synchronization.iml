@@ -3,7 +3,10 @@
   <component name="NewModuleRootManager" inherit-compiler-output="true">
     <exclude-output />
     <content url="file://$MODULE_DIR$/../OS-Projects/OS1_Task_Synchronization">
-      <sourceFolder url="file://$MODULE_DIR$/../OS-Projects/OS1_Task_Synchronization/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/../OS-Projects/OS1_Task_Synchronization/src" isTestSource="false" packagePrefix="com.company" />
+    </content>
+    <content url="file://$MODULE_DIR$/src">
+      <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

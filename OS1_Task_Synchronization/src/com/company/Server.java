@@ -6,6 +6,8 @@ import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.util.ArrayList;
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -16,16 +18,22 @@ public class Server extends Thread {
     private ServerSocket serverSocket;
     private Socket clientSocket;
     private BlockingQueue<ResultContainer> results;
+    private ArrayList<String> finishedFunctions;
+    private FunctionsContainer container;
 
     Server(int numberOfFunctions) {
         super();
 
         this.numberOfFunctions = numberOfFunctions;
         results = new LinkedBlockingQueue<>();
+        container = new FunctionsContainer();
+        finishedFunctions = new ArrayList<>();
     }
 
     @Override
     public void run() {
+        long startTime = System.currentTimeMillis();
+        String lastFunction;
         try {
             try {
                 serverSocket = new ServerSocket(5555);
@@ -35,6 +43,20 @@ public class Server extends Thread {
                 System.exit(-1);
             }
             for (int i = 0; i < numberOfFunctions; i++) {
+                if(System.currentTimeMillis() - startTime > 10000) {
+                    for(Map.Entry<String, FunctionInterface> entry : container.getAvailableFunctionsEntrySet()) {
+                        if(!finishedFunctions.contains(entry.getKey())) {
+                            try{
+                                results.put(new ResultContainer(entry.getKey(), -1, true));
+                            } catch (InterruptedException e) {
+                                System.out.println("Can't put hanging result.");
+                            }
+                        }
+                    }
+                    in.close();
+                    clientSocket.close();
+                    return;
+                }
                 try {
                     clientSocket = serverSocket.accept();
                 } catch (SocketTimeoutException e) {
@@ -47,7 +69,9 @@ public class Server extends Thread {
                 in = new BufferedReader(new
                         InputStreamReader(clientSocket.getInputStream()));
                 try {
-                    results.put(new ResultContainer(in.readLine(), Integer.parseInt(in.readLine())));
+                    lastFunction = in.readLine();
+                    results.put(new ResultContainer(lastFunction, Integer.parseInt(in.readLine()), false));
+                    finishedFunctions.add(lastFunction);
                 } catch (InterruptedException e) {
                     System.out.println("Can't read data from request");
                     System.exit(-1);
