@@ -3,6 +3,8 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/OS1_Task_Synchronization.iml" filepath="$PROJECT_DIR$/OS1_Task_Synchronization.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/taskSynchronization_main.iml" filepath="$PROJECT_DIR$/.idea/modules/taskSynchronization_main.iml" group="taskSynchronization" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/taskSynchronization_test.iml" filepath="$PROJECT_DIR$/.idea/modules/taskSynchronization_test.iml" group="taskSynchronization" />
     </modules>
   </component>
 </project>
