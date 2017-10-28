@@ -53,8 +53,12 @@ public class Server extends Thread {
                             }
                         }
                     }
-                    in.close();
-                    clientSocket.close();
+                    if(in != null) {
+                        in.close();
+                    }
+                    if(clientSocket != null) {
+                        clientSocket.close();
+                    }
                     return;
                 }
                 try {

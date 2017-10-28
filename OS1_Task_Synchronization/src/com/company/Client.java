@@ -14,6 +14,13 @@ public class Client {
 
     Client(String functionToExecute, int x) {
         container = new FunctionsContainer();
+        this.functionToExecute = functionToExecute;
+        this.x = x;
+    }
+
+    public void calculateAndSendToServer() throws InterruptedException {
+        int answer = container.getAvailableFunctions().get(functionToExecute).calculate(x);
+
         try {
             socket = new Socket("localhost", 5555);
             out = new PrintWriter(socket.getOutputStream(), true);
@@ -22,12 +29,6 @@ public class Client {
             System.out.println("Can't connect to the server.");
             System.exit(-1);
         }
-        this.functionToExecute = functionToExecute;
-        this.x = x;
-    }
-
-    public void calculateAndSendToServer() throws InterruptedException {
-        int answer = container.getAvailableFunctions().get(functionToExecute).calculate(x);
         out.println(functionToExecute);
         out.println(answer);
         out.close();

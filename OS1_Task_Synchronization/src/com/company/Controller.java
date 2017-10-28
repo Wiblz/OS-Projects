@@ -67,10 +67,15 @@ public class Controller extends Thread {
 
     private void startUserPrompt() {
         int userChoise;
-        ResultContainer lastResult = new ResultContainer();
+        ResultContainer lastResult;
         lastContinue = System.currentTimeMillis();
 
         while(!isCancelled && !isResultComputed && !hangExit) {
+            try{
+                Thread.sleep(10);
+            } catch(InterruptedException e) {}
+
+
             if(isPromptNeeded && System.currentTimeMillis() - lastContinue > 5000) {
                 userChoise = ask();
                 switch(userChoise) {
@@ -92,13 +97,8 @@ public class Controller extends Thread {
                 }
             }
 
-//            if(System.currentTimeMillis() - lastContinue > 10000) {
-//                System.out.println("Function hangs. Shutting down processes.");
-//                shutProcesses();
-//                break;
-//            }
-
             while((lastResult = server.resultPoll()) != null) {
+                System.out.println(lastResult.getFunctionName());
                 if(!lastResult.isHanging()) {
                     System.out.println(lastResult.getFormattedResult());
                     result.put(lastResult.getFunctionName(), lastResult.getFunctionResult());

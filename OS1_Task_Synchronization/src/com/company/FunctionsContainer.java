@@ -14,21 +14,21 @@ public class FunctionsContainer {
         availableFunctions.put("f", new FunctionInterface() {
             @Override
             public int calculate(int x) throws InterruptedException{
-                Thread.sleep(1000000);
+                Thread.sleep(1000);
                 return x;
             }
         });
         availableFunctions.put("g", new FunctionInterface() {
             @Override
             public int calculate(int x) throws InterruptedException {
-                Thread.sleep(10000);
+                Thread.sleep(1000);
                 return x*10;
             }
         });
         availableFunctions.put("h", new FunctionInterface() {
             @Override
             public int calculate(int x) throws InterruptedException {
-                Thread.sleep(5000);
+                Thread.sleep(100000);
                 return x-10;
             }
         });
