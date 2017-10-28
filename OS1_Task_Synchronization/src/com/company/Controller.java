@@ -5,6 +5,13 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.Scanner;
 import java.io.File;
+import java.util.logging.*;
+import org.jnativehook.GlobalScreen;
+import org.jnativehook.NativeHookException;
+import org.jnativehook.keyboard.NativeKeyListener;
+import org.jnativehook.keyboard.NativeKeyEvent;
+import static java.awt.event.KeyEvent.VK_ESCAPE;
+import static org.jnativehook.GlobalScreen.unregisterNativeHook;
 
 public class Controller extends Thread {
 
@@ -27,11 +34,25 @@ public class Controller extends Thread {
         inputReader = new Scanner(System.in);
         x = inputReader.nextInt();
 
+        initListener();
+
         processes = new HashMap<>();
         result = new HashMap<>();
         container = new FunctionsContainer();
         server = new Server(FunctionsContainer.numberOfFunctions);
         server.start();
+    }
+
+    private void initListener() {
+        try {
+            GlobalScreen.registerNativeHook();
+        } catch (NativeHookException e) {
+            System.out.println("Can't register nativehook.");
+        }
+        Logger logger = Logger.getLogger(GlobalScreen.class.getPackage().getName());
+        logger.setLevel(Level.OFF);
+
+        GlobalScreen.addNativeKeyListener(new EscapeListener());
     }
 
     private void shutProcesses() {
@@ -145,5 +166,29 @@ public class Controller extends Thread {
             System.exit(-1);
         }
         startUserPrompt();
+
+        try {
+            unregisterNativeHook();
+        } catch (NativeHookException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public class EscapeListener implements NativeKeyListener {
+        @Override
+        public void nativeKeyTyped(NativeKeyEvent nativeKeyEvent) {
+        }
+
+        @Override
+        public void nativeKeyPressed(NativeKeyEvent nativeKeyEvent) {
+        }
+
+        @Override
+        public void nativeKeyReleased(NativeKeyEvent nativeKeyEvent) {
+            if (nativeKeyEvent.getRawCode() == VK_ESCAPE) {
+                shutProcesses();
+                isCancelled = true;
+            }
+        }
     }
 }

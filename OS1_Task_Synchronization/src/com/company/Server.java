@@ -42,7 +42,7 @@ public class Server extends Thread {
                 System.out.println("Can't listen port 5555.");
                 System.exit(-1);
             }
-            for (int i = 0; i < numberOfFunctions; i++) {
+            for (int i = 0; i < numberOfFunctions && !this.isInterrupted(); i++) {
                 if(System.currentTimeMillis() - startTime > 10000) {
                     for(Map.Entry<String, FunctionInterface> entry : container.getAvailableFunctionsEntrySet()) {
                         if(!finishedFunctions.contains(entry.getKey())) {

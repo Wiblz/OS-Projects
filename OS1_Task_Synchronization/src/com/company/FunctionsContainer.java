@@ -14,7 +14,7 @@ public class FunctionsContainer {
         availableFunctions.put("f", new FunctionInterface() {
             @Override
             public int calculate(int x) throws InterruptedException{
-                Thread.sleep(1000);
+                Thread.sleep(4000);
                 return x;
             }
         });
